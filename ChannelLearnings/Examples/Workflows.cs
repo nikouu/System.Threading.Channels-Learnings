@@ -18,29 +18,35 @@ namespace ChannelLearnings.Examples
             var finalChannel = Channel.CreateUnbounded<string>();
             var startingLetters = new[] {"B", "K", "P", "R"};
 
-            var workflowStep1 = new WorkflowStep1(step1Channel.Reader, step2Channel.Writer);
-            var workflowStep2 = new WorkflowStep2(step2Channel.Reader, step3Channel.Writer);
-            var workflowStep3 = new WorkflowStep3(step3Channel.Reader, finalChannel.Writer);
-
-
-            Task.Run(workflowStep1.Run);
-            Task.Run(workflowStep2.Run);
-            Task.Run(workflowStep3.Run);
-
             foreach (var item in startingLetters)
             {
                 await step1Channel.Writer.WriteAsync(item);
             }
 
+            var workflowStep1 = new WorkflowStep1(step1Channel.Reader, step2Channel.Writer);
+            var workflowStep2 = new WorkflowStep2(step2Channel.Reader, step3Channel.Writer);
+            var workflowStep3 = new WorkflowStep3(step3Channel.Reader, finalChannel.Writer);
+
+            Task step1 = workflowStep1.Run();
+            Task step2 = workflowStep2.Run();
+            Task step3 = workflowStep3.Run();
+
+            //Task.Run(workflowStep1.Run);
+            //Task.Run(workflowStep2.Run);
+            //Task.Run(workflowStep3.Run);
+
             // uncommenting this will complete the channel, which will pop off all the 
             // other channel completes under the IAsyncEnumerables
-            //step1Channel.Writer.Complete();
+            //step1Channel.Writer.Complete();            
 
             await foreach (string item in finalChannel.Reader.ReadAllAsync())
             {
                 Console.WriteLine($"Final word: {item}");               
             }
 
+            await Task.WhenAll(step1, step2, step3); ;
+
+            // will only hit this with the writer complete above
             Console.WriteLine("All channels completions cascaded");
         }
     }

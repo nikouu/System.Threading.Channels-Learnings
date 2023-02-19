@@ -1,7 +1,7 @@
 # System.Threading.Channels Learnings
 This repo is a place for me to practice [`System.Threading.Channels`](https://docs.microsoft.com/en-us/dotnet/api/system.threading.channels).
 
-## Key Points
+## Key points
 These are key points for _my_ understanding, not for understanding `System.Threading.Channels` in general.
 
 ### Reading
